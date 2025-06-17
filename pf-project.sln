@@ -1,31 +1,437 @@
-﻿
-Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.13.35825.156 d17.13
-MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pf-husnain", "pf-husnain\pf-husnain.vcxproj", "{A10E315D-0E23-4071-A653-B6FB398D0CE5}"
-EndProject
-Global
-	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Debug|x64 = Debug|x64
-		Debug|x86 = Debug|x86
-		Release|x64 = Release|x64
-		Release|x86 = Release|x86
-	EndGlobalSection
-	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{A10E315D-0E23-4071-A653-B6FB398D0CE5}.Debug|x64.ActiveCfg = Debug|x64
-		{A10E315D-0E23-4071-A653-B6FB398D0CE5}.Debug|x64.Build.0 = Debug|x64
-		{A10E315D-0E23-4071-A653-B6FB398D0CE5}.Debug|x86.ActiveCfg = Debug|Win32
-		{A10E315D-0E23-4071-A653-B6FB398D0CE5}.Debug|x86.Build.0 = Debug|Win32
-		{A10E315D-0E23-4071-A653-B6FB398D0CE5}.Release|x64.ActiveCfg = Release|x64
-		{A10E315D-0E23-4071-A653-B6FB398D0CE5}.Release|x64.Build.0 = Release|x64
-		{A10E315D-0E23-4071-A653-B6FB398D0CE5}.Release|x86.ActiveCfg = Release|Win32
-		{A10E315D-0E23-4071-A653-B6FB398D0CE5}.Release|x86.Build.0 = Release|Win32
-	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {072D4B43-D802-494B-BF24-CE38C9750DD4}
-	EndGlobalSection
-EndGlobal
+/*   ADAN MASIH (BITF23M042)
+*    ZOHAIB HAIDER (BITF23M017)
+*/
+#include <iostream>
+#include <string>
+#include<ctime>
+#include <cstdlib>
+#include <windows.h>
+#include <fstream>
+#include <iomanip>
+using namespace std;
+HANDLE h = GetStdHandle(STD_OUTPUT_HANDLE);
+void printArray(char[][3], int, int);//functions Prototypes
+void getname(string*, string*);
+void posVal(int&);
+bool checkWin(char[][3], char);
+bool checkPosition(char[][3], int);
+int main()//main body
+{
+    string inst;
+    ifstream fin;
+    fin.open("GAME INSTRUCTIONS.txt");// file handling for game instructions
+    if (!fin.fail())
+    {
+        while (!fin.eof())
+        {
+            getline(fin, inst);
+            SetConsoleTextAttribute(h, 2);
+            cout << inst << endl;
+        }
+    }
+    else
+    {
+        cout << "There is some error with file!" << endl;
+    }
+    fin.close();
+    cout << "****************           ****************            ****************" << endl;
+    char arg;
+    cout << endl << endl;
+    SetConsoleTextAttribute(h, 11);
+    cout << "Do you want to start the Game?" << endl << "(Y or N!!)" << endl << "Enter Y for YES and N for NO!!";
+    cin >> arg;
+    while (arg != 'Y' && arg != 'N' && arg != 'y' && arg != 'n')
+    {
+        cout << "Error!";
+        cin >> arg;
+    }
+    system("cls");// To clear console
+    if (arg == 'Y' || arg == 'y')
+    {
+        fstream fout;
+        fout.open("record.txt", ios::app);
+        srand(time(0));
+        char arr[3][3] = { {' ',' ',' '},
+                           {' ',' ',' '},
+                           {' ',' ',' '} };
+        printArray(arr, 3, 3);
+        string name1, name2;
+        cout << endl;
+        int k = 1, num, randNum, position;
+        int row, col;
+        int systemMoves = 0, yourMoves = 0;
+        int player1Moves = 0, player2Moves = 0;
+        //char ch;
+        SetConsoleTextAttribute(h, 10);
+        cout << "Please enter 1 to play with the system! or 2 to play with your friend!";
+        cin >> num;// 1 to play with AI and 2 with friend
+        cout << endl;
+        while (num != 1 && num != 2 || cin.fail())
+        {
+            cin.clear();
+            cin.ignore(1000, '\n');
+            cout << "Please choose again (1-2)";
+            cin >> num;
+        }
+        if (num == 1)
+        {
+            cout << "DO YOU WANT TO PLAY EASY OR HARD:";
+            string a;
+            cout << "Enter:";
+            cin >> a;
+            if ((a == "hard" || a == "h") || (a == "H" || a == "HARD"))
+            {
+                while (k <= 9)
+                {
+                    if (k % 2 != 0)
+                    {
+                        yourMoves++;
+                        SetConsoleTextAttribute(h, 11);
+                        cout << "Now your turn!('0'):";
+                        cin >> position;
+                        posVal(position);
+                        while (checkPosition(arr, position))
+                        {
+                            SetConsoleTextAttribute(h, 12);
+                            cout << "Position already taken !!Choose another position!";
+                            cin >> position;
+                        }
+                        row = (position - 1) / 3;
+                        col = (position - 1) % 3;
+                        arr[row][col] = '0';
+                        printArray(arr, 3, 3);
+                        system("cls");
+                    }
+                    else
+                    {
+                        systemMoves++;
+                        SetConsoleTextAttribute(h, 10);
+                        cout << "System's turn!(X):" << endl;
+                        randNum = rand() % 9 + 1;
+                        cout << endl;
+                        while (checkPosition(arr, randNum))
+                        {
+                            randNum = rand() % 9 + 1;
+                            posVal(randNum);
+                        }
+                        if ((arr[0][0] == '0' && arr[0][1] == '0') && (arr[0][2] == ' '))
+                        {
+                            arr[0][2] = 'X';
+                        }
+                        else if ((arr[0][1] == '0' && arr[0][2] == '0') && (arr[0][2] == ' '))
+                        {
+                            arr[0][0] = 'X';
+                        }
+                        else if ((arr[0][0] == '0' && arr[0][2] == '0') && (arr[0][1] == ' '))
+                        {
+                            arr[0][1] = 'X';
+                        }
+                        else if ((arr[0][0] == '0' && arr[1][0] == '0') && (arr[2][0] == ' '))
+                        {
+                            arr[2][0] = 'X';
+                        }
+                        else if ((arr[1][0] == '0' && arr[2][0] == '0') && (arr[0][0] == ' '))
+                        {
+                            arr[0][0] = 'X';
+                        }
+                        else if ((arr[0][0] == '0' && arr[2][0] == '0') && (arr[1][0] == ' '))
+                        {
+                            arr[1][0] = 'X';
+                        }
+                        else if ((arr[0][0] == '0' && arr[1][1] == '0') && (arr[2][2] == ' '))
+                        {
+                            arr[2][2] = 'X';
+                        }
+                        else if ((arr[1][1] == '0' && arr[2][2] == '0') && (arr[0][0] == ' '))
+                        {
+                            arr[0][0] = 'X';
+                        }
+                        else if ((arr[0][0] == '0' && arr[2][2] == '0') && (arr[1][1] == ' '))
+                        {
+                            arr[1][1] = 'X';
+                        }
+                        else if (arr[0][1] == '0' && arr[1][1] == '0' && (arr[2][1] == ' '))
+                        {
+                            arr[2][1] = 'X';
+                        }
+                        else if (arr[1][1] == '0' && arr[2][1] == '0' && (arr[0][1] == ' '))
+                        {
+                            arr[0][1] = 'X';
+                        }
+                        else if (arr[0][1] == '0' && arr[2][1] == '0' && (arr[1][1] == ' '))
+                        {
+                            arr[1][1] = 'X';
+                        }
+                        else if (arr[0][2] == '0' && arr[1][2] == '0' && (arr[2][2] == ' '))
+                        {
+                            arr[2][2] = 'X';
+                        }
+                        else if (arr[1][2] == '0' && arr[2][2] == '0' && (arr[0][2] == ' '))
+                        {
+                            arr[0][2] = 'X';
+                        }
+                        else if (arr[0][2] == '0' && arr[2][2] == '0' && (arr[1][2] == ' '))
+                        {
+                            arr[1][2] = 'X';
+                        }
+                        else
+                        {
+                            row = (randNum - 1) / 3;
+                            col = (randNum - 1) % 3;
+                            arr[row][col] = 'X';//chVal(ch);
+                        }
+                        /*row = (randNum - 1) / 3;
+                        col = (randNum - 1) % 3;
+                        arr[row][col] = 'X';*/
+                        printArray(arr, 3, 3);
+                    }
+                    k++;
+                    if (checkWin(arr, 'X'))
+                    {
+                        SetConsoleTextAttribute(h, 9);
+                        cout << "System won!!" << endl;
+                        fout << "System moves: " << systemMoves << endl;
+                        fout << "Your moves: " << yourMoves << endl;
+                        printArray(arr, 3, 3);
+                        return 0;
+                    }
+                    else if (checkWin(arr, '0'))
+                    {
+                        SetConsoleTextAttribute(h, 4);
+                        cout << "YOU won!!" << endl;
+                        fout << "System moves: " << systemMoves << endl;
+                        fout << "Your moves: " << yourMoves << endl;
+                        printArray(arr, 3, 3);
+                        return 0;
+                    }
+                    if (k > 9)
+                    {
+                        cout << "GAME OVER. It's a draw!" << endl;
+                        fout << "System moves: " << systemMoves << endl;
+                        fout << "Your moves: " << yourMoves << endl;
+                        printArray(arr, 3, 3);
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                while (k <= 9)
+                {
+                    if (k % 2 != 0)
+                    {
+                        yourMoves++;
+                        SetConsoleTextAttribute(h, 11);
+                        cout << "Now your turn!('0'):";
+                        cin >> position;
+                        posVal(position);
+                        while (checkPosition(arr, position))
+                        {
+                            SetConsoleTextAttribute(h, 12);
+                            cout << "Position already taken !!Choose another position!";
+                            cin >> position;
+                        }
+                        row = (position - 1) / 3;
+                        col = (position - 1) % 3;
+                        arr[row][col] = '0';
+                        printArray(arr, 3, 3);
+                        system("cls");
+                    }
+                    else
+                    {
+                        systemMoves++;
+                        SetConsoleTextAttribute(h, 10);
+                        cout << "System's turn!(X):" << endl;
+                        randNum = rand() % 9 + 1;
+                        cout << endl;
+                        while (checkPosition(arr, randNum))
+                        {
+                            randNum = rand() % 9 + 1;
+                            posVal(randNum);
+                        }
+                        row = (randNum - 1) / 3;
+                        col = (randNum - 1) % 3;
+                        arr[row][col] = 'X';
+                        printArray(arr, 3, 3);
+                    }
+                    k++;
+                    if (checkWin(arr, 'X'))
+                    {
+                        SetConsoleTextAttribute(h, 9);
+                        cout << "System won!!" << endl;
+                        fout << "System moves: " << systemMoves << endl;
+                        fout << "Your moves: " << yourMoves << endl;
+                        printArray(arr, 3, 3);
+                        return 0;
+                    }
+                    else if (checkWin(arr, '0'))
+                    {
+                        SetConsoleTextAttribute(h, 4);
+                        cout << "YOU won!!" << endl;
+                        fout << "System moves: " << systemMoves << endl;
+                        fout << "Your moves: " << yourMoves << endl;
+                        printArray(arr, 3, 3);
+                        return 0;
+                    }
+                    if (k > 9)
+                    {
+                        cout << "GAME OVER. It's a draw!" << endl;
+                        fout << "System moves: " << systemMoves << endl;
+                        fout << "Your moves: " << yourMoves << endl;
+                        printArray(arr, 3, 3);
+                        break;
+                    }
+                }
+
+            }
+        }
+        else
+        {
+            getname(&name1, &name2);
+            while (k <= 9)
+            {
+                int position;
+                if (k % 2 != 0)
+                {
+                    player1Moves++;
+                    SetConsoleTextAttribute(h, 5);
+                    cout << "Now " << name1 << "'s turn:" << endl;;
+                    cout << "Please enter the position:";
+                    cin >> position;
+                    posVal(position);
+                    while (checkPosition(arr, position))
+                    {
+                        SetConsoleTextAttribute(h, 13);
+                        cout << "Position already taken !!Choose another position!";
+                        cin >> position;
+                    }
+                    row = (position - 1) / 3;
+                    col = (position - 1) % 3;
+                    char ch = '0';
+                    arr[row][col] = ch;
+                    system("cls");
+                    printArray(arr, 3, 3);
+
+                }
+                else
+                {
+                    player2Moves++;
+                    SetConsoleTextAttribute(h, 6);
+                    cout << "Now " << name2 << "'s turn:" << endl;
+                    cout << "Please enter the position:";
+                    cin >> position;
+                    posVal(position);
+                    while (checkPosition(arr, position))
+                    {
+                        SetConsoleTextAttribute(h, 13);
+                        cout << "Position already taken. Choose another position: ";
+                        cin >> position;
+                    }
+                    row = (position - 1) / 3;
+                    col = (position - 1) % 3;
+                    arr[row][col] = 'X';
+                    printArray(arr, 3, 3);
+                }
+                k++;
+                if (checkWin(arr, 'X'))
+                {
+                    SetConsoleTextAttribute(h, 13);
+                    cout << name2 << " won!!Congratulations!";
+                    fout << name1 << " moves :" << player1Moves << endl;
+                    fout << name2 << " moves :" << player2Moves << endl;
+                    printArray(arr, 3, 3);
+                    return 0;
+                }
+                else if (checkWin(arr, '0'))
+                {
+                    SetConsoleTextAttribute(h, 13);
+                    cout << name1 << " won!!Congratulations!";
+                    fout << name1 << " moves :" << player1Moves << endl;
+                    fout << name2 << " moves :" << player2Moves << endl;
+                    printArray(arr, 3, 3);
+                    return 0;
+                }
+                if (k > 9)
+                {
+                    SetConsoleTextAttribute(h, 13);
+                    cout << "GAME OVER. It's a draw!" << endl;// if no one's win
+                    fout << name1 << " moves :" << player1Moves << endl;
+                    fout << name2 << " moves :" << player2Moves << endl;
+                    break;
+                }
+            }
+        }
+    }
+    else
+    {
+        SetConsoleTextAttribute(h, 5);
+        cout << "COME AGAIN WITH SOME TRAINING SKILLS!!\n" << " ONLY LOSERS LEAVE THE GROUND!!\n";
+    }
+    return 0;
+}
+
+//function headings
+void printArray(char arr[][3], int row, int column)
+{
+    cout << endl << endl;
+    SetConsoleTextAttribute(h, 11);
+    for (int i = 0; i < row; i++)
+    {
+
+        cout << "\t----------" << endl;
+        cout << "\t| ";
+        for (int j = 0; j < column; j++)
+        {
+            cout << arr[i][j] << "| ";
+        }
+        cout << endl;
+    }
+    cout << "\t----------" << endl;
+}
+void getname(string* n1, string* n2)
+{
+    SetConsoleTextAttribute(h, 3);
+    cout << "Enter first player name:";
+    cin >> *n1;
+    SetConsoleTextAttribute(h, 8);
+    cout << "Enter second player name:";
+    cin >> *n2;
+}
+void posVal(int& pos)
+{
+    while (pos < 1 || pos > 9 || cin.fail())
+    {
+        cin.clear();
+        cin.ignore(1000, '\n');
+        cout << "Please enter position (1 to 9): ";
+        cin >> pos;
+    }
+}
+bool checkWin(char arr[][3], char ch)
+{
+    for (int i = 0; i < 3; i++)
+    {
+        if ((arr[i][0] == arr[i][1] && arr[i][1] == arr[i][2] && arr[i][0] == ch) || (arr[0][i] == arr[1][i] && arr[1][i] == arr[2][i] && arr[0][i] == ch))
+        {
+            return true;
+        }
+    }
+    if ((arr[0][0] == arr[1][1] && arr[1][1] == arr[2][2] && arr[0][0] == ch) || (arr[0][2] == arr[1][1] && arr[1][1] == arr[2][0] && arr[0][2] == ch))
+    {
+        return true;
+    }
+    return false;
+}
+bool checkPosition(char arr[][3], int pos)// To check position is empty or occupied
+{
+    int row = (pos - 1) / 3;
+    int col = (pos - 1) % 3;
+    if (arr[row][col] != ' ')
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
